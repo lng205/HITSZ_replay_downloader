@@ -13,12 +13,15 @@
 
 ## How to use
 
-### Windows
+### Run the .exe file
 
-1. Download the [latest release](https://github.com/lng205/HITSZ_replay_downloader/releases/download/v1.0/HITSZ_replay_downloader.exe)
-2. Run the .exe file
+1. Disable Windows Defender real-time protection
+2. Download the [latest release](https://github.com/lng205/HITSZ_replay_downloader/releases/download/v1.0/HITSZ_replay_downloader.exe)
+3. Run the .exe file
 
-### Unix
+### Run the script manually
+
+If you don't trust the .exe file, you can run the script manually.
 
 1. install [ffmpeg](https://ffmpeg.org/)
 2. Clone the repo

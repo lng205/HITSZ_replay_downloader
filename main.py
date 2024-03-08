@@ -1,4 +1,4 @@
-import requests, re, subprocess, os
+import requests, re, subprocess, os, sys
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from getpass import getpass
@@ -44,7 +44,7 @@ def main():
         output_file = os.path.join(course, f"{time}.mp4")
 
         command = [
-            "ffmpeg",
+            get_ffmpeg_path(),
             "-i",
             hls_url,
             "-c",
@@ -54,6 +54,13 @@ def main():
             output_file,
         ]
         subprocess.run(command)
+
+
+def get_ffmpeg_path():
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, 'ffmpeg.exe')
+    else:
+        return 'ffmpeg.exe'
 
 
 def select_courses(courses: dict):
