@@ -9,7 +9,21 @@
 - [x] Get courses list when separated by pages
 - [x] Set Video file name
 - [x] Select Video
-- [ ] Release .exe file
+- [x] Release .exe file
+
+## How to use
+
+### Windows
+
+1. Download the latest release
+2. Run the .exe file
+
+### Unix
+
+1. install [ffmpeg](https://ffmpeg.org/)
+2. Clone the repo
+3. `pip install -r requirements.txt`
+4. `python main.py`
 
 ## Walk Through
 
