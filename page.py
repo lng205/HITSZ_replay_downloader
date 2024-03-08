@@ -1,14 +1,22 @@
 import requests, re, subprocess, os
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from getpass import getpass
 
 
+requests.packages.urllib3.disable_warnings(
+    requests.packages.urllib3.exceptions.InsecureRequestWarning
+)
 BASE_URL = "https://sso.hitsz.edu.cn:7002/cas/login"
 SERVICE_URL = "http://219.223.238.14:88/ve/"
 
+# Define some ANSI color codes
+YELLOW = '\033[93m'
+RESET = '\033[0m'
+
 
 def main():
-    login = Login(input("请输入用户名："), input("请输入密码："))
+    login = Login(input("请输入用户名："), getpass("请输入密码："))
     session = login.session
 
     courses = extract_courses(login.course_index.text)
@@ -51,21 +59,21 @@ def main():
 def select_courses(courses: dict):
     for index, course in enumerate(list(courses.keys())):
         print(f"{index + 1}. {course}")
-    print("\n0. 选择其他学期")
-    return int(input("请选择课程序号："))
+    print("0. 选择其他学期")
+    return int(input(f"{YELLOW}请选择课程序号：{RESET}"))
 
 
 def select_term(terms: dict) -> str:
     for index, term in enumerate(list(terms.keys())):
         print(f"{index + 1}. {term}")
-    return int(input("请选择学期序号："))
+    return int(input(f"{YELLOW}请选择学期序号：{RESET}"))
 
 
 def select_replays(replays: dict) -> dict[str, str]:
     for index, replay in enumerate(replays):
         print(f"{index + 1}. {replay}")
 
-    range_input = input("请选择回放序号（示例：3-7,9）：")
+    range_input = input(f"{YELLOW}请选择回放序号（示例：3-7,9）：{RESET}")
     ranges = []
     for part in range_input.split(","):
         if "-" in part:
