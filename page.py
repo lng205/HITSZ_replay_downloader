@@ -1,8 +1,6 @@
-import requests
+import requests, re, subprocess, os
 from bs4 import BeautifulSoup
-import re
 from urllib.parse import urljoin
-import subprocess
 
 
 BASE_URL = "https://sso.hitsz.edu.cn:7002/cas/login"
@@ -26,20 +24,26 @@ def main():
             break
 
     course = list(courses.keys())[course_select_index - 1]
-    replays = extract_replays(session.get(courses[course], verify=False).text)
+    replays = get_replays(session, courses[course])
+
+    if not os.path.exists(course):
+        os.mkdir(course)
 
     for time, url in select_replays(replays).items():
+        time = time.replace(":", "_").replace(" ", "_").replace("-", "_")
         hls_url = get_hls_url(url, session)
-        # print(f"Course: {course}, Time: {time}, URL: {hls_url}")
+
+        output_file = os.path.join(course, f"{time}.mp4")
+
         command = [
             "ffmpeg",
             "-i",
-            hls_url,  # Input file specification
+            hls_url,
             "-c",
             "copy",  # Copy streams to avoid re-encoding
             "-bsf:a",
             "aac_adtstoasc",  # Fix for some HLS streams with AAC audio
-            "test.mp4",  # Output file
+            output_file,
         ]
         subprocess.run(command)
 
@@ -48,27 +52,29 @@ def select_courses(courses: dict):
     for index, course in enumerate(list(courses.keys())):
         print(f"{index + 1}. {course}")
     print("\n0. 选择其他学期")
-    return int(input("请输入你要选择的课程的序号："))
+    return int(input("请选择课程序号："))
 
 
 def select_term(terms: dict) -> str:
     for index, term in enumerate(list(terms.keys())):
         print(f"{index + 1}. {term}")
-    return int(input("请输入你要选择的学期的序号："))
+    return int(input("请选择学期序号："))
 
 
 def select_replays(replays: dict) -> dict[str, str]:
-    # TODO
     for index, replay in enumerate(replays):
         print(f"{index + 1}. {replay}")
-    urls = {}
-    while True:
-        index = int(input("请输入你要选择的回放的序号："))
-        if index == 0:
-            break
-        time = list(replays.keys())[index - 1]
-        urls[time] = replays[time]
-    return urls
+
+    range_input = input("请选择回放序号（示例：3-7,9）：")
+    ranges = []
+    for part in range_input.split(","):
+        if "-" in part:
+            start, end = map(int, part.split("-"))
+            ranges.extend(list(range(start, end + 1)))
+        else:
+            ranges.append(int(part))
+    times = list(replays.keys())
+    return {times[index - 1]: replays[times[index - 1]] for index in ranges}
 
 
 def extract_terms(page: str) -> dict[str, str]:
@@ -93,13 +99,22 @@ def extract_courses(page: str) -> dict[str, str]:
     }
 
 
+def get_replays(session: requests.Session, url: str) -> dict[str, str]:
+    page = session.get(url, verify=False)
+    soup = BeautifulSoup(page.text, "lxml")
+    page_element = soup.find_all("span", class_="bkd")
+    if not page_element:
+        return extract_replays(page.text)
+    total_page = int(re.search(r"共(\d+)页", page_element[1].text).group(1))
+    replays = extract_replays(page.text)
+    for i in range(2, total_page + 1):
+        page = session.get(url + f"&page={i}", verify=False)
+        replays.update(extract_replays(page.text))
+    return replays
+
+
 def extract_replays(page: str) -> dict[str, str]:
     soup = BeautifulSoup(page, "lxml")
-    total_page_element = soup.find_all("span", class_="bkd")[1]
-    total_page = int(re.search(r"共(\d+)页", total_page_element.text).group(1))
-
-    # TODO
-
     replays = {}
     content = soup.find("div", class_="curr-contlist")
     elements = content.select("ul > a")

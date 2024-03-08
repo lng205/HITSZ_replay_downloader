@@ -6,10 +6,9 @@
 - [x] Select Course
 - [x] Select Terms
 - [x] Download Video
-
-- [ ] Get courses list when separated by pages
-- [ ] Set Video file name
-- [ ] Select Video
+- [x] Get courses list when separated by pages
+- [x] Set Video file name
+- [x] Select Video
 - [ ] Release .exe file
 
 ## Walk Through
