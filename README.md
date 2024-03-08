@@ -15,7 +15,7 @@
 
 ### Windows
 
-1. Download the latest release
+1. Download the [latest release](https://github.com/lng205/HITSZ_replay_downloader/releases/download/v1.0/HITSZ_replay_downloader.exe)
 2. Run the .exe file
 
 ### Unix
