@@ -1,5 +1,7 @@
 # HITSZ Course Replay Downloader
 
+[demo](https://youtu.be/r6pAK5whOYM)
+
 ## Feature List
 
 - [x] Login
